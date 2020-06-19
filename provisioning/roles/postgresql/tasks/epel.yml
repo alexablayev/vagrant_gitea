@@ -1,0 +1,9 @@
+- name: Check if EPEL repo is already configured.
+  stat:
+    path: /etc/yum.repos.d/epel.repo
+  register: epel_repofile_result
+
+- name: install epel repo
+  dnf:
+    name: epel-release
+    state: present

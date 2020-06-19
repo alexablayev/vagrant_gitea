@@ -1,0 +1,17 @@
+---
+- name: PostgreSQL server port
+  firewalld:
+    port: "{{ pg_port }}/tcp"
+    permanent: yes
+    state: enabled
+
+- name: PostgreSQL Service
+  firewalld:
+    service: postgresql
+    permanent: true
+    state: enabled
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

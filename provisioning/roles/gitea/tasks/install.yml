@@ -1,0 +1,30 @@
+---
+- name: Install GIT
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - "{{ pre_packages }}"
+
+- name: download gitea binary to local folder
+  become: false
+  get_url:
+    url: "{{ gitea_dl_url }}"
+    dest: "{{ role_path }}/files/gitea-{{ gitea_version }}-linux-{{ gitea_arch }}"
+    #checksum: "{{ gitea_dl_url }}"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 3
+  delay: 2
+  run_once: true
+  delegate_to: localhost
+  check_mode: false
+
+- name: "Install the binary"
+  copy:
+    src: "gitea-{{ gitea_version }}-linux-{{ gitea_arch }}"
+    dest: /usr/local/bin/gitea
+    owner: root
+    group: root
+    mode: 0755
+  notify: "Restart gitea"

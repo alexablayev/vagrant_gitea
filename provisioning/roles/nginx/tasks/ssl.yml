@@ -1,0 +1,37 @@
+---
+- name: "Create ssl directory"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    mode: 0644
+  with_items:
+    - "/etc/ssl/private"
+    - "/etc/ssl/certs"
+
+- name: "Upload key"
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/ssl/private/{{ item }}"
+    owner: root
+    group: root
+  with_items:
+  - nginx-selfsigned.key
+
+- name: "Upload cert and Diffie-Hellman group"
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/ssl/certs/{{ item }}"
+    owner: root
+    group: root
+  with_items:
+  - nginx-selfsigned.crt
+  - dhparam.pem
+
+
+#- name: Generate an OpenSSL private key with size (2048 bits)
+#  openssl_privatekey:
+#    path: /etc/ssl/private/nginx-selfsigned.key
+#    size: 2048
+#    type: RSA
+#    state: present

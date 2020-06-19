@@ -1,0 +1,53 @@
+---
+- name: Set time zone to Europe/Moscow
+  timezone:
+    name: Europe/Moscow
+  tags:
+    - system
+
+#- name: Configure hosts file
+#  template:
+#    src: hosts.j2
+#    dest: /etc/hosts
+#    owner: root
+#    group: root
+#    mode: 0644
+
+- name: Ensure NTP (for time synchronization) is installed.
+  dnf:
+    name: chrony
+    state: present
+  notify:
+  - restart chronyd
+
+- name: Ensure NTP is running.
+  service:
+    name: chronyd
+    state: started
+    enabled: yes
+
+- name: restart chronyd
+  service:
+    name: chronyd
+    state: restarted
+
+#- name: upgrade all packages
+#  dnf:
+#    name: "*"
+#    state: latest
+
+#- name: install epel repo
+#  dnf:
+#    name: epel-release
+#    state: present
+
+- name: start service firewalld
+  systemd:
+    state: started
+    name: firewalld
+
+- name: enable service firewalld
+  systemd:
+    name: firewalld
+    enabled: yes
+    masked: no

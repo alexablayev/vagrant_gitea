@@ -1,0 +1,71 @@
+---
+- name: Create first user and get token
+  shell: /usr/local/bin/gitea --config /etc/gitea/gitea.ini admin create-user --username gitea --password 'TestUserP@44' --email gitea@localhost --admin --access-token | awk '/token/ { print $6 }' > /var/lib/gitea/token
+  become: yes
+  become_user: "{{ gitea_user }}"
+  run_once: true
+  ignore_errors: yes
+
+- name: Check token
+  shell: cat /var/lib/gitea/token
+  register: check_token
+
+- set_fact:
+    token: "{{ check_token.stdout }}"
+  when: check_token.stdout is defined
+
+- debug:
+    msg: Token is "{{ token }}"
+
+- name: Create user Miles
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"bdmiles@example.com\", \"full_name\": \"Miles Bennet Dyson\", \"login_name\": \"bdmiles\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"bdmiles\"}"'
+  run_once: true
+  ignore_errors: yes
+
+- name: Create user Sarah
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"csarah@example.com\", \"full_name\": \"Sarah Connor\", \"login_name\": \"csarah\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"csarah\"}"'
+  run_once: true
+  ignore_errors: yes
+
+- name: Create user John
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"cjohn@example.com\", \"full_name\": \"John Connor\", \"login_name\": \"cjohn\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"cjohn\"}"'
+  run_once: true
+  ignore_errors: yes
+
+- name: Create user T-800
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"term@example.com\", \"full_name\": \"Terminator T-800\", \"login_name\": \"term\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"term\"}"'
+  run_once: true
+  ignore_errors: yes
+
+
+- name: Create Cyberdine org
+  shell: 'curl -v -X POST "http://{{ inventory_hostname }}:3000/api/v1/orgs" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"description\": \"Cyberdine Systems\", \"full_name\": \"Cyberdine Systems inc\", \"location\": \"Kazan\", \"repo_admin_change_team_access\": true, \"username\": \"Cyberdine_Systems\", \"visibility\": \"public\", \"website\": \"mail.ru\"}"'
+  run_once: true
+  ignore_errors: yes
+
+- name: Create Resistance org
+  shell: 'curl -v -X POST "http://{{ inventory_hostname }}:3000/api/v1/orgs" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"description\": \"Resistance\", \"full_name\": \"Resistance ltd\", \"location\": \"Samara\", \"repo_admin_change_team_access\": true, \"username\": \"Resistance\", \"visibility\": \"public\", \"website\": \"vk.ru\"}"'
+  run_once: true
+  ignore_errors: yes
+
+#- debug:
+#    msg: "{{ auth_list.stderr }}"
+
+#- name: Create user Miles test
+#  uri:
+#    url: "http://{{ inventory_hostname }}:3000/api/v1/admin/users"
+#    method: POST
+#    headers:
+#      Authorization: token {{ token }}
+      #accept: application/json
+#    body:
+#      email: "milesbd@example.com"
+#      full_name: "Miles Bennet Dyson"
+#      login_name: "milesbd"
+#      must_change_password: true
+#      password: "P@ssW0rd17"
+#      send_notify: true
+#      source_id: 0,
+#      username: "milesbd"
+#    body_format: json
+    #status_code: 201

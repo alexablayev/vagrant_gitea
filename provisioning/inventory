@@ -1,0 +1,29 @@
+[all:children]
+vm1.test.com
+vm2.test.com
+vm3.test.com
+
+[all:vars]
+#ssh_host=127.0.0.1
+ansible_ssh_user = vagrant
+ansible_connection = ssh
+ansible_python_interpreter = /usr/bin/python3
+ansible_ssh_private_key_file = ~/.vagrant.d/insecure_private_key
+
+[vm1.test.com]
+192.168.56.51
+
+[vm2.test.com]
+192.168.56.52
+
+[vm3.test.com]
+192.168.56.53
+
+[webservers:children]
+vm1.test.com
+
+[gitservers:children]
+vm2.test.com
+
+[dbservers:children]
+vm3.test.com

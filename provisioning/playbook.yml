@@ -1,0 +1,9 @@
+---
+- name: Common role
+  hosts: all
+  become: true
+  roles:
+  - common
+- import_playbook: dbservers.yml
+- import_playbook: gitservers.yml
+- import_playbook: webservers.yml

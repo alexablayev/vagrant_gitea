@@ -1,0 +1,7 @@
+- name: Configure nginx web server
+  hosts: webservers
+  become: true
+  roles:
+  - nginx
+  - prometheus
+

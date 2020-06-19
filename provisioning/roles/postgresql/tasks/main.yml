@@ -1,0 +1,14 @@
+---
+- import_tasks: epel.yml
+- include: install.yml
+  when: ansible_os_family == 'RedHat'
+- import_tasks: firewall.yml
+- include_tasks: initialize.yml
+- include_tasks: configure.yml
+- import_tasks: run.yml
+
+# Configure PostgreSQL.
+- include_vars: ../../gitea/defaults/main.yml
+- import_tasks: users.yml
+- import_tasks: databases.yml
+

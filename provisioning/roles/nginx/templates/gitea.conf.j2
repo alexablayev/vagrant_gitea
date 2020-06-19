@@ -1,0 +1,42 @@
+server {
+    listen {{ listen_http }};
+    server_name {{ inventory_hostname }};
+    access_log /var/log/nginx/reverse-access.log;
+    error_log /var/log/nginx/reverse-error.log;
+
+{% for host in groups['gitservers'] %}
+    location / {
+        proxy_pass http://{{ hostvars[host]['ansible_facts']['eth1']['ipv4']['address'] }}:3000;
+    }
+{% endfor %}
+
+{% if ssl_setup %}
+    return 301 https://$host$request_uri;
+{% else %}
+    proxy_redirect      off;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+{% endif %}
+}
+
+{% if ssl_setup %}
+server {
+        listen       {{ listen_https }} http2 ssl;
+        ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+        ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+        ssl_dhparam /etc/ssl/certs/dhparam.pem;
+        server_name {{ inventory_hostname }};
+
+{% for host in groups['gitservers'] %}
+        location / {
+            proxy_pass http://{{ hostvars[host]['ansible_facts']['eth1']['ipv4']['address'] }}:3000;
+        }
+{% endfor %}
+
+        proxy_redirect      off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+}
+{% endif %}

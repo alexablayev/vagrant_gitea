@@ -1,0 +1,31 @@
+---
+- name: Add HTTP service
+  firewalld:
+    state: enabled
+    service: http
+    permanent: true
+
+- name: SetUp HTTPS Service
+  firewalld:
+    service: https
+    permanent: true
+    state: enabled
+  when: ssl_setup
+
+- name: SetUP HTTP Port
+  firewalld:
+    port: 80/tcp
+    permanent: true
+    state: enabled
+
+- name: SetUP HTTPS Port
+  firewalld:
+    port: 443/tcp
+    permanent: true
+    state: enabled
+  when: ssl_setup
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

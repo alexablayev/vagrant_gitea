@@ -1,0 +1,6 @@
+---
+- name: Ensure PostgreSQL is started and enabled on boot.
+  service:
+    name: postgresql-{{ pg_major_version }}
+    state: started
+    enabled: yes

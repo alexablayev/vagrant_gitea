@@ -1,0 +1,13 @@
+---
+- name: Configure NGINX server
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/nginx/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+    - { src: nginx.conf.j2, dest: nginx.conf }
+    - { src: gitea.conf.j2, dest: conf.d/gitea.conf }
+  notify:
+  - nginx-reload

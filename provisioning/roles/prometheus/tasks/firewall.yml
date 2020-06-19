@@ -1,0 +1,11 @@
+---
+- name: Add Prometheus port
+  firewalld:
+    port: 9090/tcp
+    permanent: true
+    state: enabled
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

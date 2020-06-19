@@ -1,0 +1,11 @@
+---
+- name: Ensure PostgreSQL databases "{{ gitea_db_name }}" are present.
+  postgresql_db:
+    name: "{{ gitea_db_name }}"
+    owner: "{{ gitea_db_user }}"
+    template: template0
+    state: present
+  become: true
+  become_user: "{{ pg_user }}"
+  vars:
+    ansible_ssh_pipelining: true

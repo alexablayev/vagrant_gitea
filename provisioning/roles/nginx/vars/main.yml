@@ -1,0 +1,6 @@
+listen_http: 80
+listen_https: 443
+nginx_user: nginx
+worker_processes: auto
+worker_connections: 512
+ssl_setup: true

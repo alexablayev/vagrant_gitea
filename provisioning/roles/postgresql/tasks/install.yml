@@ -1,0 +1,22 @@
+---
+- name: install PG epel repo
+  dnf:
+    name: "{{ epel_repo_url }}"
+    state: present
+  when: epel_repo_url is defined
+
+- name: disable postgresql module
+  command: dnf module disable postgresql -y
+
+- name: Ensure PostgreSQL packages are installed
+  dnf:
+    name: "{{ pg_packages }}"
+    state: present
+    enablerepo: "{{ epel_repo_url | default(omit, true) }}"
+
+- name: Set postgres user's OS password
+  user:
+    name: "{{ pg_user }}"
+    password: "{{ pg_user_password | password_hash('sha512') }}"
+    update_password: always
+    state: present

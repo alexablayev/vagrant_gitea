@@ -1,0 +1,23 @@
+---
+- name: "Create config and data directory"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ gitea_user }}"
+  with_items:
+    - "/etc/gitea"
+    - "{{ gitea_home }}"
+    - "{{ gitea_home }}/data"
+    - "{{ gitea_home }}/data/lfs"
+    - "{{ gitea_home }}/custom"
+    - "{{ gitea_home }}/custom/https"
+    - "{{ gitea_home }}/custom/mailer"
+    - "{{ gitea_home }}/gitea-repositories"
+
+- name: "Configure gitea"
+  template:
+    src: gitea.ini.j2
+    dest: /etc/gitea/gitea.ini
+    owner: "{{ gitea_user }}"
+    mode: 0600
+  notify: "Restart gitea"

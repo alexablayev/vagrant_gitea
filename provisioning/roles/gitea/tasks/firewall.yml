@@ -1,0 +1,11 @@
+---
+- name: Gitea server port
+  firewalld:
+    port: 3000/tcp
+    permanent: yes
+    state: enabled
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

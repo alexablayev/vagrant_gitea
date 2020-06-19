@@ -1,0 +1,16 @@
+pg_major_version: 12
+epel_repo_url: https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+pg_port: 5432
+pg_packages:
+  - postgresql{{ pg_major_version }}-server
+  - postgresql{{ pg_major_version }}-contrib
+  - postgresql{{ pg_major_version }}-libs
+  - python3-psycopg2
+
+pg_user: postgres
+pg_user_password: postgres
+pg_group: postgres
+
+pg_data_dir: "/var/lib/pgsql/{{ pg_major_version }}/data"
+pg_bin_path: "/usr/pgsql-{{ pg_major_version }}/bin"
+pg_config_path: "/var/lib/pgsql/{{ pg_major_version }}/data"

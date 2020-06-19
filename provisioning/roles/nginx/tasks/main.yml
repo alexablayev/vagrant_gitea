@@ -1,0 +1,9 @@
+---
+- include: install.yml
+- include: configure.yml
+- include: ssl.yml
+  when: ssl_setup
+- include: selinux.yml
+- include: firewall.yml
+- include: run.yml
+

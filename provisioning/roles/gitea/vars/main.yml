@@ -1,0 +1,11 @@
+pre_packages:
+  - git
+  - curl
+  - wget
+  - vim
+  - bash-completion
+  - postgresql
+
+gitea_user: "gitea"
+gitea_home: "/var/lib/gitea"
+gitea_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"

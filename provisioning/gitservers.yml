@@ -1,0 +1,5 @@
+- name: "Configure gitea server"
+  hosts: gitservers
+  become: true
+  roles:
+    - gitea
