@@ -1,13 +1,13 @@
 ---
 - name: Create first user and get token
-  shell: /usr/local/bin/gitea --config /etc/gitea/gitea.ini admin create-user --username gitea --password 'TestUserP@44' --email gitea@localhost --admin --access-token | awk '/token/ { print $6 }' > /var/lib/gitea/token
+  shell: "/usr/local/bin/gitea --config /etc/gitea/gitea.ini admin create-user --username {{ gitea_user }} --password 'TestUserP@44' --email gitea@localhost --admin --access-token | awk '/token/ { print $6 }' > {{ gitea_home }}/token"
   become: yes
   become_user: "{{ gitea_user }}"
   run_once: true
   ignore_errors: yes
 
 - name: Check token
-  shell: cat /var/lib/gitea/token
+  shell: "cat {{ gitea_home }}/token"
   register: check_token
 
 - set_fact:
@@ -17,40 +17,65 @@
 - debug:
     msg: Token is "{{ token }}"
 
-- name: Create user Miles
-  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"bdmiles@example.com\", \"full_name\": \"Miles Bennet Dyson\", \"login_name\": \"bdmiles\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"bdmiles\"}"'
-  run_once: true
-  ignore_errors: yes
 
-- name: Create user Sarah
-  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"csarah@example.com\", \"full_name\": \"Sarah Connor\", \"login_name\": \"csarah\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"csarah\"}"'
-  run_once: true
+- name: Create users
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:{{ gitea_http_port }}/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"{{ item.email }}\", \"full_name\": \"{{ item.full_name }}\", \"login_name\": \"{{ item.login_name }}\", \"must_change_password\": true, \"password\": \"{{ item.password }}\", \"send_notify\": true, \"source_id\": 0, \"username\": \"{{ item.login_name }}\"}"'
+  with_items:
+  - { email: bdmiles@example.com, full_name: "Miles Bennet Dyson", login_name: bdmiles, password: "P@ssW0rd17" }
+  - { email: csarah@example.com, full_name: "Sarah Connor", login_name: csarah, password: "P@ssW0rd17" }
+  - { email: cjohn@example.com, full_name: "John Connor", login_name: cjohn, password: "P@ssW0rd17" }
+  - { email: t-800@example.com, full_name: "Iron Terminator", login_name: t-800, password: "P@ssW0rd17" }
   ignore_errors: yes
+  register: create_users
+  when: token is defined
 
-- name: Create user John
-  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"cjohn@example.com\", \"full_name\": \"John Connor\", \"login_name\": \"cjohn\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"cjohn\"}"'
-  run_once: true
+- name: Create ORGs
+  shell: 'curl -v -X POST "http://{{ inventory_hostname }}:{{ gitea_http_port }}/api/v1/orgs" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"description\": \"{{ item.description }}\", \"full_name\": \"{{ item.full_name }}\", \"location\": \"{{ item.location }}\", \"repo_admin_change_team_access\": true, \"username\": \"{{ item.username }}\", \"visibility\": \"public\", \"website\": \"{{ item.website }}\"}"'
+  with_items:
+  - { description: "Cyberdine Systems", full_name: "Cyberdine Systems inc", location: Kazan, username: Cyberdine_Systems, website: mail.ru }
+  - { description: "Resistance", full_name: "Resistance ltd", location: Samara, username: Resistance, website: vk.ru }
   ignore_errors: yes
+  register: create_orgs
+  when: token is defined
 
-- name: Create user T-800
-  shell: 'curl -X POST "http://{{ inventory_hostname }}:3000/api/v1/admin/users" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"email\": \"term@example.com\", \"full_name\": \"Terminator T-800\", \"login_name\": \"term\", \"must_change_password\": true, \"password\": \"P@ssW0rd17\", \"send_notify\": true, \"source_id\": 0, \"username\": \"term\"}"'
-  run_once: true
+- name: Create Teams
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:{{ gitea_http_port }}/api/v1/orgs/{{ item.org_name }}/teams" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"can_create_org_repo\": true, \"description\": \"{{ item.description }}\", \"includes_all_repositories\": true, \"name\": \"{{ item.name }}\", \"permission\": \"read\", \"units\": [ \"repo.code\", \"repo.issues\", \"repo.ext_issues\", \"repo.wiki\", \"repo.pulls\", \"repo.releases\", \"repo.ext_wiki\" ]}"'
+  with_items:
+  - { org_name: Cyberdine_Systems, description: "Cyberdine Systems Team", name: Cyberdine_Team }
+  - { org_name: Resistance, description: "Resistance Team", name: Resistance_Team }
   ignore_errors: yes
+  register: create_team
+  when: token is defined and create_orgs
 
+### TODO
+#Get team id for adding users in a team
+# curl -v -X GET "http://192.168.33.52:3000/api/v1/orgs/Resistance/teams" -H "Authorization: token e651938a8639d12df88209e599a0697a9dc91372" -H "accept: application/json" 
 
-- name: Create Cyberdine org
-  shell: 'curl -v -X POST "http://{{ inventory_hostname }}:3000/api/v1/orgs" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"description\": \"Cyberdine Systems\", \"full_name\": \"Cyberdine Systems inc\", \"location\": \"Kazan\", \"repo_admin_change_team_access\": true, \"username\": \"Cyberdine_Systems\", \"visibility\": \"public\", \"website\": \"mail.ru\"}"'
-  run_once: true
+# it`s should be run only once becouse need to implement TODO step
+- name: Add owners
+  shell: 'curl -X PUT "http://{{ inventory_hostname }}:{{ gitea_http_port }}/api/v1/teams/{{ item.id }}/members/{{ item.user }}" -H "Authorization: token {{ token }}" -H "accept: application/json"'
+  with_items:
+  - { id: 1, user: bdmiles }
+  - { id: 2, user: csarah }
+  - { id: 2, user: cjohn }
+  - { id: 2, user: t-800 }
   ignore_errors: yes
+  when: create_orgs and create_team
 
-- name: Create Resistance org
-  shell: 'curl -v -X POST "http://{{ inventory_hostname }}:3000/api/v1/orgs" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"description\": \"Resistance\", \"full_name\": \"Resistance ltd\", \"location\": \"Samara\", \"repo_admin_change_team_access\": true, \"username\": \"Resistance\", \"visibility\": \"public\", \"website\": \"vk.ru\"}"'
-  run_once: true
+- name: Create repos
+  shell: 'curl -X POST "http://{{ inventory_hostname }}:{{ gitea_http_port }}/api/v1/orgs/{{ item.org_name }}/repos" -H "Authorization: token {{ token }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"auto_init\": true, \"default_branch\": \"master\", \"description\": \"{{ item.description }}\", \"name\": \"{{ item.name }}\", \"private\": true}"'
+  with_items:
+  - { org_name: Cyberdine_Systems, description: "Skynet repo", name: Skynet }
+  - { org_name: Resistance, description: "hastalavista baby repo", name: hastalavista }
   ignore_errors: yes
+  when: token is defined and create_orgs
 
 #- debug:
 #    msg: "{{ auth_list.stderr }}"
 
+
+### TODO
+# make api manage by uri module
 #- name: Create user Miles test
 #  uri:
 #    url: "http://{{ inventory_hostname }}:3000/api/v1/admin/users"

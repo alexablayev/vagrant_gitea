@@ -1,4 +1,9 @@
-hostvars[inventory_hostname]['ansible_eth1_ipv4']['address'] {{ inventory_hostname }}
+# {{ ansible_managed }}
+{% for host in play_hosts %}
+{% if 'ansible_eth1' in hostvars[host] %}
+{{ hostvars[host]['ansible_eth1']['ipv4']['address']}}		{{ host }}
+{% endif %}
+{% endfor %}
 
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6

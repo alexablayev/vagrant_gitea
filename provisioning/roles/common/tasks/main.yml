@@ -5,13 +5,13 @@
   tags:
     - system
 
-#- name: Configure hosts file
-#  template:
-#    src: hosts.j2
-#    dest: /etc/hosts
-#    owner: root
-#    group: root
-#    mode: 0644
+- name: Configure hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Ensure NTP (for time synchronization) is installed.
   dnf:

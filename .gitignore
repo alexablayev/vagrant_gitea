@@ -1,3 +1,6 @@
 .vagrant*
 *.retry
 *-linux-amd64*
+*.tar
+*.gz
+provisioning/roles/prometheus/files/prometheus-2.19.0.linux-amd64/

@@ -6,6 +6,12 @@
   with_items:
   - "{{ pre_packages }}"
 
+- name: Ansible check file exists
+  stat:
+    path: "{{ role_path }}/files/gitea-{{ gitea_version }}-linux-{{ gitea_arch }}"
+  register: local_binary
+  delegate_to: localhost
+
 - name: download gitea binary to local folder
   become: false
   get_url:
@@ -19,6 +25,7 @@
   run_once: true
   delegate_to: localhost
   check_mode: false
+  when: local_binary is not defined
 
 - name: "Install the binary"
   copy:

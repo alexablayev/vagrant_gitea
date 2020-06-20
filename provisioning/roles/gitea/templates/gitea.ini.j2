@@ -12,9 +12,7 @@ SECRET_KEY     = {{ gitea_secret_key }}
 
 [database]
 DB_TYPE  = {{ gitea_db_type }}
-{% for host in groups['dbservers'] %}
-HOST     = {{ hostvars[host]['ansible_facts']['eth1']['ipv4']['address'] }}:5432
-{% endfor %}
+HOST     = {{ gitea_db_host }}
 NAME     = {{ gitea_db_name }}
 USER     = {{ gitea_db_user }}
 PASSWD   = {{ gitea_db_password }}
@@ -23,15 +21,17 @@ CHARSET  = utf8
 PATH     = {{ gitea_db_path }}
 
 [repository]
-ROOT = /var/lib/gitea/gitea-repositories
+ROOT = {{ gitea_home }}/gitea-repositories
 
 [server]
-SSH_DOMAIN       = {{ inventory_hostname }}
-DOMAIN           = {{ inventory_hostname }}
-HTTP_PORT        = 3000
-ROOT_URL         = http://{{ inventory_hostname }}:3000/
+SSH_DOMAIN       = {{ gitea_ssh_domain }}
+DOMAIN           = {{ gitea_http_domain }}
+HTTP_PORT        = {{ gitea_http_port }}
+ROOT_URL         = {{ gitea_root_url }}
+HTTP_ADDR	 = {{ gitea_http_listen }}
+HTTP_PORT	 = {{ gitea_http_port }}
 DISABLE_SSH      = false
-SSH_PORT         = 22
+SSH_PORT         = {{ gitea_ssh_port }}
 LFS_START_SERVER = true
 LFS_CONTENT_PATH = {{ gitea_home }}/data/lfs
 LFS_JWT_SECRET   = H4lDC0JrlMhKnzRrYb3YePmNppc0aJrE8523rfqHH58
@@ -65,8 +65,14 @@ PROVIDER = file
 
 [log]
 MODE      = file
-LEVEL     = info
+LEVEL     = warn
 ROOT_PATH = {{ gitea_home }}/log
+
+[log.file]
+LOG_ROTATE = true
+MAX_LINES = 1000000
+DAILY_ROTATE = true
+MAX_DAYS =7
 
 [api]
 ENABLE_SWAGGER 		= true
