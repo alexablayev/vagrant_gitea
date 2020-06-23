@@ -4,6 +4,7 @@
     name: nginx
     enabled: yes
     state: restarted
+  when: nginx_config_status.rc == 0
 
 - name: nginx systemd
   systemd:
