@@ -22,4 +22,4 @@
     enabled: true
   when: ansible_service_mgr == "systemd"
 
-#- include: api_user.yml
+- include: api_user.yml

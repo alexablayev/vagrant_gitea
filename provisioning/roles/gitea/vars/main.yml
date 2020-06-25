@@ -5,6 +5,7 @@ pre_packages:
   - vim
   - bash-completion
   - postgresql
+  - python3-psycopg2
 
 gitea_user: "gitea"
 gitea_home: "/var/lib/gitea"

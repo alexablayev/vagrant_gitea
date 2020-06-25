@@ -20,9 +20,9 @@ gitea_http_port: 3000
 gitea_lfs_content_path: "data/lfs"
 
 gitea_db_type: postgres
-gitea_db_host: "{{ groups['dbservers'][0] }}:5432"
+gitea_db_host: "{{ groups['dbservers'][0] }}"
 gitea_db_name: gitea
-gitea_db_user: gitea
+gitea_db_user: "{{ gitea_user }}"
 gitea_db_password: gitea
 gitea_db_ssl: disable
 gitea_db_path: "{{ gitea_home }}/data/gitea.db"

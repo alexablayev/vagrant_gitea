@@ -12,7 +12,7 @@ SECRET_KEY     = {{ gitea_secret_key }}
 
 [database]
 DB_TYPE  = {{ gitea_db_type }}
-HOST     = {{ gitea_db_host }}
+HOST     = {{ gitea_db_host }}:5432
 NAME     = {{ gitea_db_name }}
 USER     = {{ gitea_db_user }}
 PASSWD   = {{ gitea_db_password }}

@@ -12,15 +12,3 @@
     - { src: status.conf.j2, dest: conf.d/status.conf }
   notify:
   - nginx-reload
-
-- name: Check NGINX configs
-  shell: "/usr/sbin/nginx -t"
-  register: nginx_config_status
-
-- name: NGINX test status
-  debug:
-    msg: "{{ nginx_config_status }}"
-
-- name: NGINX test status
-  debug:
-    msg: "{{ nginx_config_status.rc }}"

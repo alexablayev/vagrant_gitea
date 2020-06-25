@@ -14,6 +14,19 @@
     - "{{ gitea_home }}/custom/mailer"
     - "{{ gitea_home }}/gitea-repositories"
 
+# PostgreSQL ping dbsrv server from the shell:
+# ansible dbsrv -m postgresql_ping
+
+# In the example below you need to generate certificates previously.
+# See https://www.postgresql.org/docs/current/libpq-ssl.html for more information.
+- name: PostgreSQL ping dbsrv server using not default credentials and ssl
+  postgresql_ping:
+    db: "{{ gitea_db_name }}"
+    login_host: "{{ gitea_db_host }}"
+    login_user: "{{ gitea_db_user }}"
+    login_password: "{{ gitea_db_password }}"
+  when: gitea_db_type == 'postgres'
+
 - name: "Configure gitea"
   template:
     src: gitea.ini.j2

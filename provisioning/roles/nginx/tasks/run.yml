@@ -1,6 +1,18 @@
 ---
+- name: Check NGINX configs
+  shell: "/usr/sbin/nginx -t"
+  register: nginx_config_status
+
+- name: NGINX test status
+  debug:
+     msg: "{{ nginx_config_status }}"
+- name: NGINX test status
+  debug:
+     msg: "{{ nginx_config_status.rc }}"
+
 - name: nginx systemd
   systemd:
     name: nginx
     enabled: yes
     state: started
+  when: nginx_config_status.rc == 0
